@@ -4,14 +4,21 @@
     <test name="Chrome Test">
         <parameter name="browser" value="chrome"/>
         <classes>
-            <class name="com.selenium.hackathonproject.tests.PractoTest"/>
+            <class name="com.selenium.tests.PractoTest"/>
         </classes>
     </test>
 
     <test name="Edge Test">
         <parameter name="browser" value="edge"/>
         <classes>
-            <class name="com.selenium.hackathonproject.tests.PractoTest"/>
+            <class name="com.selenium.tests.PractoTest"/>
         </classes>
     </test>
+
+<!--    <test name="FireFox Test">-->
+<!--        <parameter name="browser" value="firefox"/>-->
+<!--        <classes>-->
+<!--            <class name="com.selenium.tests.PractoTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 </suite>
