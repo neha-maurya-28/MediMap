@@ -1,7 +1,8 @@
 package com.selenium.base;
 
-import com.selenium.utils.ExcelUtils;
-import com.selenium.utils.Screenshots;
+import com.selenium.utility.ExcelUtils;
+import com.selenium.utility.ExtentReport;
+import com.selenium.utility.Screenshots;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -39,6 +40,16 @@ public class BaseTest {
         if (sys != null && !sys.trim().isEmpty()) return sys.trim();
         String val = config.getProperty(key);
         return (val == null || val.trim().isEmpty()) ? defaultVal : val.trim();
+    }
+
+    @BeforeSuite
+    public void startReport() {
+        ExtentReport.initReport();
+    }
+
+    @AfterSuite
+    public void endReport() {
+        ExtentReport.flushReport();
     }
 
     @BeforeClass

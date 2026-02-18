@@ -89,5 +89,10 @@
             <version>2.25.3</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>5.0.9</version>
+        </dependency>
     </dependencies>
 </project>

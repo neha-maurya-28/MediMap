@@ -1,4 +1,4 @@
-package com.selenium.utils;
+package com.selenium.utility;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.io.FileHandler;

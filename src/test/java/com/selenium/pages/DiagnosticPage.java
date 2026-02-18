@@ -1,6 +1,6 @@
 package com.selenium.pages;
 
-import com.selenium.utils.ExcelWriter;
+import com.selenium.utility.ExcelWriter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
