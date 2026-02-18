@@ -21,7 +21,6 @@ public class HospitalListingPage {
         List<String> qualifiedHospitals = new ArrayList<>();
         String mainHandle = driver.getWindowHandle();
 
-        // 1. Scroll Logic
         ((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight/4);");
         Thread.sleep(2000);
 
@@ -38,7 +37,6 @@ public class HospitalListingPage {
                     WebElement nameLink = card.findElement(By.cssSelector(".line-1"));
                     String hospitalName = nameLink.getText();
 
-                    // Click and Switch Tab
                     nameLink.click();
                     switchTab(mainHandle);
 
@@ -47,7 +45,6 @@ public class HospitalListingPage {
                         qualifiedHospitals.add(hospitalName);
                     }
 
-                    // Close tab and return
                     driver.close();
                     driver.switchTo().window(mainHandle);
                 }

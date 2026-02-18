@@ -1,5 +1,6 @@
 package com.selenium.base;
 
+import com.selenium.utils.ExcelUtils;
 import com.selenium.utils.Screenshots;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -8,25 +9,42 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 
+import java.io.InputStream;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 public class BaseTest {
     protected WebDriver driver;
     private static final ThreadLocal<SoftAssert> SOFT_ASSERT = new ThreadLocal<>();
     protected Screenshots shots;
+    protected ExcelUtils excel;
+    private Properties config = new Properties();
 
     protected SoftAssert softAssert() {
         return SOFT_ASSERT.get();
     }
 
+    private String prop(String key, String defaultVal) {
+        String sys = System.getProperty(key);
+        if (sys != null && !sys.trim().isEmpty()) return sys.trim();
+        String val = config.getProperty(key);
+        return (val == null || val.trim().isEmpty()) ? defaultVal : val.trim();
+    }
+
     @BeforeClass
     @Parameters("browser")
     public void setup(@Optional("Chrome") String browser) {
+        try (InputStream in = BaseTest.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (in == null) throw new RuntimeException("config.properties not found");
+            config.load(in);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load config.properties", e);
+        }
+
         System.out.println("Initializing Browser: " + browser);
 
         if (browser.equalsIgnoreCase("chrome")) {
@@ -51,7 +69,6 @@ public class BaseTest {
             options.addPreference("permissions.default.camera", 2);
             options.addPreference("permissions.default.geo", 2);
             options.addPreference("permissions.default.desktop-notification", 2);
-
             driver = new FirefoxDriver(options);
             driver.manage().window().maximize();
         } else {
@@ -59,8 +76,13 @@ public class BaseTest {
         }
 
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
         shots = new Screenshots(driver);
-        driver.get("https://www.practo.com/");
+        excel = new ExcelUtils("TestData.xlsx");
+        long waitSeconds = Long.parseLong(prop("explicit.wait.seconds", "10"));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
+        String url = prop("url", "https://www.practo.com");
+        driver.get(url);
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -70,14 +92,10 @@ public class BaseTest {
 
     @AfterMethod(alwaysRun = true)
     public void assertAllAndCleanup() {
-        try {
             SoftAssert sa = SOFT_ASSERT.get();
             if (sa != null) {
                 sa.assertAll();
             }
-        } finally {
-            SOFT_ASSERT.remove();
-        }
     }
 
     @AfterClass(alwaysRun = true)

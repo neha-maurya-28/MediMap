@@ -1,5 +1,6 @@
 package com.selenium.pages;
 
+import com.selenium.utils.ExcelWriter;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -20,6 +21,10 @@ public class DiagnosticPage {
         for (WebElement el : elements) {
             cities.add(el.getText());
         }
+
+        ExcelWriter writer = new ExcelWriter(System.getProperty("user.dir") + "/src/test/resources/testdata/TestData.xlsx");
+        writer.writeCityList("(OUTPUT)Top_Cities", cities);
+
         return cities;
     }
 }
