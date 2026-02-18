@@ -9,10 +9,15 @@ import com.selenium.utils.ExcelUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.util.List;
 
 public class PractoTest extends BaseTest {
+    private static final Logger logger = LogManager.getLogger(PractoTest.class);
+
     private final String writableExcelPath = System.getProperty("user.dir") + "/target/test-output/TestData.xlsx";
 
     private ExcelUtils dataExcel;
@@ -36,14 +41,22 @@ public class PractoTest extends BaseTest {
 
     @Test(priority = 1)
     public void testHospitalSearch() throws InterruptedException, IOException {
+        logger.info("Starting testHospitalSearch...");
         HomePage home = new HomePage(driver);
         shots.takeViewportScreenshot("Home_Page");
+
         home.searchLocation("Bangalore");
+        logger.info("Searched location: Bangalore");
+
         home.searchService("Hospital");
+        logger.info("Searched service: Hospital");
 
         HospitalListingPage listing = new HospitalListingPage(driver);
         List<String> hospitals = listing.getHospitalsWithParking(3.5);
+        logger.info("Hospitals with Parking (>3.5 Rating): {}", hospitals);
+
         shots.takeViewportScreenshot("Hospitals_List");
+
         System.out.println("--- Hospitals with Parking (>3.5 Rating) ---");
         for (String h : hospitals) {
             System.out.println(h);
@@ -54,16 +67,27 @@ public class PractoTest extends BaseTest {
 
         softAssert().assertNotNull(hospitals, "Hospitals list should not be null");
         softAssert().assertTrue(hospitals.size() >= 1, "Expected at least 1 hospital with parking and rating > 3.5");
+        logger.info("testHospitalSearch completed successfully.");
     }
 
     @Test(priority = 2)
     public void testTopCities() throws IOException {
-        driver.navigate().back(); // Go back to home
+        logger.info("Starting testTopCities...");
+        driver.navigate().back();
+
+        logger.info("Navigated back to home page.");
         HomePage home = new HomePage(driver);
+
         home.clickLabTests();
+        logger.info("Clicked on Lab Tests link.");
+
         DiagnosticPage diag = new DiagnosticPage(driver);
         List<String> cities = diag.getTopCities();
+
         shots.takeViewportScreenshot("Top_Cities");
+
+        logger.info("Top Diagnostic Cities: {}", cities);
+
         System.out.println("--- Top Diagnostic Cities ---");
         for (String city : cities) {
             System.out.println(city);
@@ -72,20 +96,26 @@ public class PractoTest extends BaseTest {
         softAssert().assertNotNull(cities, "Cities list should not be null");
         softAssert().assertTrue(!cities.isEmpty(), "Cities list should not be empty");
         softAssert().assertTrue(cities.size() >= 3, "Expected at least 3 top cities (adjust if needed)");
+
+        logger.info("testTopCities completed successfully.");
     }
 
-    @Test(priority = 4)
+    @Test(priority = 3)
     public void testCorporateForm_InvalidData_FromExcel() throws InterruptedException, java.io.IOException {
+        logger.info("Starting testCorporateForm...");
         String mainWindowHandle = driver.getWindowHandle();
 
+        logger.info("Main window handle saved.");
         HomePage home = new HomePage(driver);
         home.navigateToCorporateWellness();
+        logger.info("Navigated to Corporate Wellness page.");
 
         java.util.Set<String> allWindowHandles = driver.getWindowHandles();
         boolean switched = false;
         for (String handle : allWindowHandles) {
             driver.switchTo().window(handle);
             String currentTitle = driver.getTitle();
+            logger.info("Switched to window with title: {}", currentTitle);
             if (currentTitle != null &&
                     currentTitle.contains("Employee Health | Corporate Health & Wellness Plans | Practo")) {
                 switched = true;
@@ -113,11 +143,14 @@ public class PractoTest extends BaseTest {
 
             form.clearForm();
             form.fillForm(uName, uOrg, uPhone, uEmail, uOrgSize, uInterest);
+            logger.info("Filled Corporate Wellness form with sample data.");
 
-            Thread.sleep(500);
+//            Thread.sleep(500);
 
             boolean enabled = form.isSubmitEnabled();
             System.out.printf("Row %d -> Submit Enabled? %s [Name=%s, Org=%s, Phone=%s, Email=%s, Size=%s, Interest=%s]%n", r, enabled, uName, uOrg, uPhone, uEmail, uOrgSize, uInterest);
+
+            logger.info("Submit Button Enabled: {}", enabled);
 
             softAssert().assertFalse(enabled, "Submit should be disabled for invalid data at row " + r);
 
@@ -125,6 +158,8 @@ public class PractoTest extends BaseTest {
         }
 
         driver.switchTo().window(mainWindowHandle);
+        logger.info("Switched back to main window.");
+        logger.info("testCorporateForm completed successfully.");
     }
 
     private static String safe(String v) {

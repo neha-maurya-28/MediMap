@@ -13,6 +13,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Properties;
@@ -23,6 +28,7 @@ public class BaseTest {
     protected Screenshots shots;
     protected ExcelUtils excel;
     private Properties config = new Properties();
+    protected static Logger logger;
 
     protected SoftAssert softAssert() {
         return SOFT_ASSERT.get();
@@ -38,6 +44,9 @@ public class BaseTest {
     @BeforeClass
     @Parameters("browser")
     public void setup(@Optional("Chrome") String browser) {
+        try { Files.createDirectories(Path.of("logs/tests")); } catch (Exception ignored) {}
+        logger = LogManager.getLogger(getClass());
+
         try (InputStream in = BaseTest.class.getClassLoader().getResourceAsStream("config.properties")) {
             if (in == null) throw new RuntimeException("config.properties not found");
             config.load(in);
